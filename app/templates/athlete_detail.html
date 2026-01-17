@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ athlete.name }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="container">
+  <div class="topbar">
+    <div>
+      <a href="/athletes">← Sportolók</a>
+      <h1>{{ athlete.name }}</h1>
+      <p class="muted">Hét: {{ week_start }} – {{ week_end }}</p>
+    </div>
+    <form method="post" action="/logout"><button type="submit" class="secondary">Kilépés</button></form>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Új session</h2>
+      <form method="post" action="/sessions/create">
+        <input type="hidden" name="athlete_id" value="{{ athlete.id }}"/>
+        <label>Dátum</label>
+        <input name="session_date" type="date" value="{{ week_start }}" required />
+        <label>Típus</label>
+        <select name="type">
+          <option value="road">Országút</option>
+          <option value="track">Pálya</option>
+          <option value="gym">Kondi</option>
+        </select>
+        <label>Cím</label>
+        <input name="title" placeholder="pl. Z2 3:00" />
+        <label>Tartalom</label>
+        <textarea name="content" rows="4" placeholder="Edzésleírás..."></textarea>
+        <label>Időtartam (perc)</label>
+        <input name="duration_min" type="number" value="60" min="10" max="600"/>
+        <button type="submit">Hozzáadás</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Napi check-in</h2>
+      <form method="post" action="/checkins/create">
+        <input type="hidden" name="athlete_id" value="{{ athlete.id }}"/>
+        <label>Dátum</label>
+        <input name="checkin_date" type="date" value="{{ week_start }}" required />
+        <div class="row">
+          <div>
+            <label>Alvás (óra)</label>
+            <input name="sleep_h" type="number" min="0" max="20" />
+          </div>
+          <div>
+            <label>HRV</label>
+            <input name="hrv" type="number" min="0" max="300" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>RPE (1-10)</label>
+            <input name="rpe" type="number" min="1" max="10" />
+          </div>
+          <div>
+            <label>Asztma (0-3)</label>
+            <input name="asthma" type="number" min="0" max="3" />
+          </div>
+        </div>
+        <label>Megjegyzés</label>
+        <textarea name="note" rows="3"></textarea>
+        <button type="submit">Mentés</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Heti terv</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Dátum</th><th>Típus</th><th>Cím</th><th>Perc</th><th>Export</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in sessions %}
+          <tr>
+            <td>{{ s.session_date }}</td>
+            <td>{{ s.type }}</td>
+            <td>
+              <div><strong>{{ s.title }}</strong></div>
+              <div class="muted">{{ s.content }}</div>
+            </td>
+            <td>{{ s.duration_min }}</td>
+            <td><a href="/sessions/{{ s.id }}/export.zwo">.zwo</a></td>
+            <td>
+              <form method="post" action="/sessions/{{ s.id }}/delete" onsubmit="return confirm('Törlöd?');">
+                <button type="submit" class="danger">Törlés</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6">Nincs session ezen a héten.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Check-in ezen a héten</h2>
+    <table>
+      <thead><tr><th>Dátum</th><th>Alvás</th><th>HRV</th><th>RPE</th><th>Asztma</th><th>Jegyzet</th></tr></thead>
+      <tbody>
+      {% for d in dates %}
+        {% set c = checkin_by_date.get(d) %}
+        <tr>
+          <td>{{ d }}</td>
+          <td>{{ c.sleep_h if c else "" }}</td>
+          <td>{{ c.hrv if c else "" }}</td>
+          <td>{{ c.rpe if c else "" }}</td>
+          <td>{{ c.asthma if c else "" }}</td>
+          <td class="muted">{{ c.note if c else "" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

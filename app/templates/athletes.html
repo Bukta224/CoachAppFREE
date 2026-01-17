@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sportolók</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="container">
+  <div class="topbar">
+    <h1>Sportolók</h1>
+    <form method="post" action="/logout"><button type="submit" class="secondary">Kilépés</button></form>
+  </div>
+
+  <div class="card">
+    <h2>Új sportoló</h2>
+    <form method="post" action="/athletes/create">
+      <input name="name" placeholder="Név" required />
+      <button type="submit">Létrehozás</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Lista</h2>
+    <ul>
+      {% for a in athletes %}
+        <li><a href="/athletes/{{ a.id }}">{{ a.name }}</a></li>
+      {% else %}
+        <li>Nincs sportoló.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>
