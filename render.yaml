@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: coachapp-web
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: COACH_PASSWORD
+        sync: false
+      - key: COACH_EMAIL
+        value: coach@example.com
+      - key: APP_SECRET
+        generateValue: true
